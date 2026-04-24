@@ -23,6 +23,264 @@
   --mc-radius: 16px;
 }
 
+/* ---------- step: input ---------- */
+.mc-step-input {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  width: 100%;
+}
+
+/* 말풍선 입력 영역 */
+.mc-input-bubble-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.mc-input-bubble {
+  background: var(--mc-surface);
+  border: 1px solid var(--mc-border);
+  border-radius: 20px;
+  padding: 22px 20px 18px;
+  width: 100%;
+  box-shadow: var(--mc-shadow);
+}
+
+.mc-bubble-header {
+  font-size: 0.82rem;
+  color: var(--mc-text-muted);
+  margin: 0 0 18px;
+  text-align: center;
+  font-style: italic;
+}
+
+/* 말풍선 꼬리 삼각형 */
+.mc-bubble-tail {
+  width: 0;
+  height: 0;
+  border-left: 14px solid transparent;
+  border-right: 14px solid transparent;
+  border-top: 14px solid var(--mc-border);
+  position: relative;
+}
+
+.mc-bubble-tail::after {
+  content: '';
+  position: absolute;
+  top: -15px;
+  left: -12px;
+  width: 0;
+  height: 0;
+  border-left: 12px solid transparent;
+  border-right: 12px solid transparent;
+  border-top: 12px solid var(--mc-surface);
+}
+
+/* 캐릭터 이미지 공통 */
+.mc-char-stage {
+  display: flex;
+  justify-content: center;
+  margin-top: -4px;
+}
+
+.mc-char-img {
+  width: 100%;
+  max-width: 340px;
+  height: auto;
+  display: block;
+  object-fit: contain;
+}
+
+/* idle 둥둥 애니메이션 */
+.mc-char-float {
+  animation: mc-float 3.6s ease-in-out infinite;
+}
+
+@keyframes mc-float {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-10px); }
+}
+
+/* 버튼 - 이미지 아래 풀 너비 */
+.mc-btn-main {
+  width: 100%;
+  margin-top: 8px;
+}
+
+/* ---------- step: loading ---------- */
+.mc-step-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 260px;
+  gap: 24px;
+}
+
+.mc-loading-char-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mc-loading-char-wrap .mc-char-img {
+  max-width: 260px;
+  position: relative;
+  z-index: 1;
+}
+
+/* pulse 애니메이션 */
+.mc-char-pulse {
+  animation: mc-pulse-img 1.2s ease-in-out infinite;
+  filter: drop-shadow(0 0 18px rgba(168, 85, 247, 0.7));
+}
+
+@keyframes mc-pulse-img {
+  0%, 100% { transform: scale(1);    filter: drop-shadow(0 0 18px rgba(168,85,247,0.7)); }
+  50%       { transform: scale(1.05); filter: drop-shadow(0 0 36px rgba(168,85,247,1)); }
+}
+
+/* glow 링 */
+.mc-loading-ring {
+  position: absolute;
+  inset: -20px;
+  border-radius: 50%;
+  border: 2px solid rgba(168, 85, 247, 0.4);
+  animation: mc-ring-spin 2.4s linear infinite;
+}
+
+@keyframes mc-ring-spin {
+  from { transform: rotate(0deg)   scale(1); opacity: 0.6; }
+  50%  { transform: rotate(180deg) scale(1.08); opacity: 1; }
+  to   { transform: rotate(360deg) scale(1); opacity: 0.6; }
+}
+
+.mc-loading-text {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--mc-primary-light);
+  margin: 0;
+}
+
+.mc-loading-dots span {
+  display: inline-block;
+  animation: mc-blink 1.2s infinite;
+  opacity: 0;
+}
+.mc-loading-dots span:nth-child(1) { animation-delay: 0s; }
+.mc-loading-dots span:nth-child(2) { animation-delay: 0.3s; }
+.mc-loading-dots span:nth-child(3) { animation-delay: 0.6s; }
+
+@keyframes mc-blink {
+  0%, 80%, 100% { opacity: 0; }
+  40%           { opacity: 1; }
+}
+
+/* ---------- step: result ---------- */
+.mc-step-result {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+}
+
+.mc-result-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.mc-result-actions .mc-btn-calc {
+  flex: 1;
+  margin-top: 0;
+}
+
+.mc-btn-secondary {
+  flex: 1;
+  padding: 12px;
+  background: transparent;
+  border: 1px solid var(--mc-border);
+  border-radius: 10px;
+  color: var(--mc-text-muted);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.mc-btn-secondary:hover {
+  border-color: var(--mc-primary);
+  color: var(--mc-primary-light);
+}
+
+/* ---------- 패키지 추천 카드 ---------- */
+.mc-package-card {
+  border-color: rgba(251, 191, 36, 0.3);
+}
+
+.mc-package-notice {
+  font-size: 0.82rem;
+  color: #fbbf24;
+  background: rgba(251, 191, 36, 0.08);
+  border: 1px solid rgba(251, 191, 36, 0.2);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin: -8px 0 16px;
+  line-height: 1.6;
+}
+
+.mc-package-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mc-package-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--mc-surface-2);
+  border: 1px solid var(--mc-border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  gap: 12px;
+}
+
+.mc-package-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.mc-package-name {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--mc-text);
+}
+
+.mc-package-desc {
+  font-size: 0.78rem;
+  color: var(--mc-text-muted);
+}
+
+.mc-package-price {
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+
+.mc-price-low  { background: var(--mc-ok-bg);   color: var(--mc-safe);   border: 1px solid rgba(52,211,153,0.3); }
+.mc-price-mid  { background: rgba(251,191,36,0.1); color: #fbbf24;        border: 1px solid rgba(251,191,36,0.3); }
+.mc-price-high { background: var(--mc-fail-bg); color: var(--mc-danger); border: 1px solid rgba(248,113,113,0.3); }
+
 /* ---------- 기본 레이아웃 ---------- */
 .mc-wrapper {
   min-height: 100vh;

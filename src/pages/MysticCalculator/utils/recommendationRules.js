@@ -17,20 +17,31 @@ export function getMascotComment(result) {
     if (medals >= result.requiredMysticMedals * 1.5) {
       return '갈피가 넘치고 있다 찍찍! 지금 당장 천장 가능! 여유 갈피까지 있으니 다음 천장도 노려볼 수 있다!';
     }
-    return '현재 갈피만으로 천장 달성 가능하다 찍찍! 바로 소환하러 가면 된다!';
+    return '지금 가진 재화로 천장 가능하다 찍찍.';
   }
 
-  // 천장 불가 케이스
   const avgRun = emergencyRun.average;
   const luckyRun = emergencyRun.lucky;
 
-  if (luckyRun.canReachPityWithRun) {
-    return `지금은 갈피가 ${shortfallMedals}개 부족하다 찍찍. 하늘석을 운좋게 굴리면 천장 가능하니 비상런을 노려볼 만하다!`;
-  }
-
   if (avgRun.canReachPityWithRun) {
-    return `갈피가 ${shortfallMedals}개 부족하다 찍찍. 평균 비상런이면 천장 가능! 하늘석을 아껴왔다면 도전해보자.`;
+    return '비상런 평균 기준으로는 천장권에 들어온다 찍찍.';
   }
 
-  return `갈피가 ${shortfallMedals}개 부족하다 찍찍. 비상런을 더 돌리거나 존버가 필요하다. 포기하지 마라 찍!`;
+  if (luckyRun.canReachPityWithRun) {
+    return `갈피가 ${shortfallMedals}개 부족하다 찍찍. 운이 좋으면 비상런으로 커버 가능하니 도전해볼 만하다!`;
+  }
+
+  return `부족하다 찍찍... 갈피가 ${shortfallMedals}개 모자란다. 현질 또는 존버 판단이 필요하다.`;
 }
+
+/**
+ * 패키지 추천 영역 노출 여부 판단
+ * 비상런 평균 기준으로도 천장 불가일 때만 노출
+ * @param {object} result - calculateMystic 반환값
+ * @returns {boolean}
+ */
+export function shouldShowPackage(result) {
+  if (result.canReachPity) return false;
+  return !result.emergencyRun.average.canReachPityWithRun;
+}
+

@@ -1,10 +1,9 @@
-import { useState } from 'react';
-import MysticInputForm from './components/MysticInputForm';
-import MysticResultCard from './components/MysticResultCard';
-import MysticRunEstimate from './components/MysticRunEstimate';
-import MascotComment from './components/MascotComment';
+import { useState, useEffect } from 'react';
+import InputStep from './components/InputStep';
+import LoadingStep from './components/LoadingStep';
+import ResultStep from './components/ResultStep';
 import { calculateMystic } from './utils/calculateMystic';
-import { getMascotComment } from './utils/recommendationRules';
+import { getMascotComment, shouldShowPackage } from './utils/recommendationRules';
 import './MysticCalculator.css';
 
 const DEFAULT_VALUES = {
@@ -22,18 +21,29 @@ function parseInput(values) {
 }
 
 export default function MysticCalculator() {
+  const [step, setStep] = useState('input');
   const [inputValues, setInputValues] = useState(DEFAULT_VALUES);
-  const [result, setResult] = useState(() => calculateMystic(parseInput(DEFAULT_VALUES)));
-  const [comment, setComment] = useState(() => {
-    const r = calculateMystic(parseInput(DEFAULT_VALUES));
-    return getMascotComment(r);
-  });
+  const [result, setResult] = useState(null);
+  const [comment, setComment] = useState('');
+  const [showPackage, setShowPackage] = useState(false);
 
-  function handleCalculate() {
+  function handleSubmit() {
     const parsed = parseInput(inputValues);
     const r = calculateMystic(parsed);
     setResult(r);
     setComment(getMascotComment(r));
+    setShowPackage(shouldShowPackage(r));
+    setStep('loading');
+  }
+
+  useEffect(() => {
+    if (step !== 'loading') return;
+    const timer = setTimeout(() => setStep('result'), 1000);
+    return () => clearTimeout(timer);
+  }, [step]);
+
+  function handleReset() {
+    setStep('input');
   }
 
   return (
@@ -44,14 +54,22 @@ export default function MysticCalculator() {
       </header>
 
       <main className="mc-main">
-        <MysticInputForm
-          values={inputValues}
-          onChange={setInputValues}
-          onCalculate={handleCalculate}
-        />
-        <MysticResultCard result={result} />
-        <MysticRunEstimate result={result} />
-        <MascotComment comment={comment} />
+        {step === 'input' && (
+          <InputStep
+            values={inputValues}
+            onChange={setInputValues}
+            onSubmit={handleSubmit}
+          />
+        )}
+        {step === 'loading' && <LoadingStep />}
+        {step === 'result' && (
+          <ResultStep
+            result={result}
+            comment={comment}
+            showPackage={showPackage}
+            onReset={handleReset}
+          />
+        )}
       </main>
 
       <footer className="mc-footer">
@@ -60,3 +78,4 @@ export default function MysticCalculator() {
     </div>
   );
 }
+
