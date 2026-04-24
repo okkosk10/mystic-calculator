@@ -133,7 +133,27 @@
   z-index: 1;
 }
 
-/* pulse 애니메이션 */
+/* thinking-mascot: 분석 중 애니메이션 */
+.thinking-mascot {
+  width: clamp(220px, 60vw, 360px);
+  max-width: 100%;
+  height: auto;
+  animation: thinking-bob 2.8s ease-in-out infinite;
+  filter: drop-shadow(0 0 14px rgba(168, 85, 247, 0.55));
+}
+
+@keyframes thinking-bob {
+  0%, 100% {
+    transform: translateY(0);
+    filter: drop-shadow(0 0 14px rgba(168, 85, 247, 0.55));
+  }
+  50% {
+    transform: translateY(-8px);
+    filter: drop-shadow(0 0 26px rgba(168, 85, 247, 0.9));
+  }
+}
+
+/* pulse / ring (이제 미사용이지만 클래스 유지) */
 .mc-char-pulse {
   animation: mc-pulse-img 1.2s ease-in-out infinite;
   filter: drop-shadow(0 0 18px rgba(168, 85, 247, 0.7));
@@ -164,6 +184,12 @@
   font-weight: 700;
   color: var(--mc-primary-light);
   margin: 0;
+}
+
+.mc-loading-sub {
+  font-size: 0.82rem;
+  color: var(--mc-text-muted);
+  margin: 4px 0 0;
 }
 
 .mc-loading-dots span {

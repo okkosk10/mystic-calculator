@@ -38,7 +38,7 @@ export default function MysticCalculator() {
 
   useEffect(() => {
     if (step !== 'loading') return;
-    const timer = setTimeout(() => setStep('result'), 1000);
+    const timer = setTimeout(() => setStep('result'), 2000);
     return () => clearTimeout(timer);
   }, [step]);
 
