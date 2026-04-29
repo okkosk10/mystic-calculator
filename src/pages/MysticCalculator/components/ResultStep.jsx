@@ -54,7 +54,13 @@ function getProbBarColor(prob) {
 function handleCaptureResult() {
   alert('결과 캡쳐 기능은 추후 추가 예정입니다.');
 }
-
+function getMascotImage(canReachPity, pity, emergencyRun) {
+  if (pity === 0) return '/image/ezang_normal.png';
+  if (canReachPity) return '/image/ezang_happy.png';
+  if (emergencyRun?.average?.canReachPityWithRun) return '/image/ezang_normal.png';
+  if (emergencyRun?.lucky?.canReachPityWithRun) return '/image/ezang_sad.png';
+  return '/image/ezang_sad.png';
+}
 /* ── 1+2. 마스코트 + 판정 + 천장 준비도 통합 카드 ── */
 function TopSummaryCard({ comment, canReachPity, shortfallMedals, requiredMysticMedals, possiblePulls, probWithCurrentMedals, emergencyRun, pity, medals }) {
   const verdict = getVerdict(canReachPity, shortfallMedals, requiredMysticMedals, emergencyRun);
@@ -62,16 +68,20 @@ function TopSummaryCard({ comment, canReachPity, shortfallMedals, requiredMystic
   const required = Math.max(1, requiredMysticMedals ?? 1);
   const progressPct = Math.min(100, Math.round((current / required) * 100));
   const barColor = progressPct >= 80 ? 'var(--mc-safe)' : progressPct >= 40 ? '#fbbf24' : 'var(--mc-danger)';
+  const mascotImg = getMascotImage(canReachPity, pity, emergencyRun);
   return (
     <div className={`mc-result-dashboard__top-card mc-result-dashboard__decision--${verdict.status}`}>
       {/* 마스코트 멘트 */}
       {comment && (
-        <div className="mc-result-dashboard__top-mascot">
-          <span className="mc-mascot-avatar" aria-hidden="true">🐭</span>
-          <div className="mc-mascot-bubble">
-            <span className="mc-mascot-name">에장연</span>
+        <div className="mc-mascot-area">
+          <div className="mc-mascot-speech-bubble">
             <p className="mc-mascot-text">{comment}</p>
           </div>
+          <img
+            src={mascotImg}
+            alt="에장연"
+            className="mc-mascot-character"
+          />
         </div>
       )}
 
