@@ -3,9 +3,24 @@ import '../MysticCalculator.css';
 
 /* ── 상수 ── */
 const RUN_LABELS = {
-  conservative: { label: '비운', desc: '기댓값 −1σ' },
-  average:      { label: '평균', desc: '기댓값 (E)' },
-  lucky:        { label: '행운', desc: '기댓값 +1σ' },
+  conservative: {
+    label: '폭사 루트',
+    desc: '기댓값 −1σ',
+    image: '/image/route_disaster.png',
+    tone: 'disaster',
+  },
+  average: {
+    label: '평타 루트',
+    desc: '기댓값 (E)',
+    image: '/image/route_normal.png',
+    tone: 'normal',
+  },
+  lucky: {
+    label: '대박 루트',
+    desc: '기댓값 +1σ',
+    image: '/image/route_jackpot.png',
+    tone: 'jackpot',
+  },
 };
 
 /* ── 헬퍼 함수 ── */
@@ -197,7 +212,7 @@ function ProbabilityCompare({ probBeforePity, probWithCurrentMedals, pity, possi
 }
 
 /* ── 5. 비상런 시나리오 ── */
-function EmergencyScenarioList({ emergencyRun, skystones, rerolls, expectedHits }) {
+function EmergencyScenarioList({ emergencyRun, skystones, rerolls, expectedHits, requiredMysticMedals }) {
   if (!emergencyRun) return null;
   const entries = Object.entries(emergencyRun);
   const allCanReach = entries.every(([, v]) => v.canReachPityWithRun);
@@ -221,20 +236,39 @@ function EmergencyScenarioList({ emergencyRun, skystones, rerolls, expectedHits 
       </p>
       <div className="mc-result-dashboard__scenario-grid">
         {entries.map(([key, val], i) => {
-          const meta = RUN_LABELS[key] ?? { label: key, desc: '' };
+          const meta = RUN_LABELS[key] ?? { label: key, desc: '', image: null, tone: 'normal' };
+          const summaryText = val.canReachPityWithRun
+            ? '천장 도달 가능해요!'
+            : val.gainedMedals > 0
+            ? `천장까지 ${Math.max(0, (requiredMysticMedals ?? 0) - (val.totalMedals ?? 0)).toLocaleString()}개 부족해요…`
+            : '추가 공력이 거의 없어요…';
           return (
             <div
               key={key}
-              className={`mc-result-dashboard__scenario-card ${val.canReachPityWithRun ? 'mc-run-ok' : 'mc-run-fail'}`}
+              className={`mc-result-dashboard__scenario-card mc-scenario--${meta.tone}`}
               style={{ animationDelay: `${i * 0.1}s` }}
             >
+              {/* 이미지 영역 */}
+              <div className="mc-scenario__img-wrap">
+                {meta.image && (
+                  <img
+                    src={meta.image}
+                    alt={`${meta.label} 캬릭터`}
+                    className="mc-scenario__img"
+                  />
+                )}
+              </div>
+
+              {/* 시나리오 이름 + 배지 */}
               <div className="mc-result-dashboard__scenario-header">
                 <span className="mc-run-label">{meta.label}</span>
                 <span className={`mc-run-badge ${val.canReachPityWithRun ? 'mc-badge-ok' : 'mc-badge-fail'}`}>
                   {val.canReachPityWithRun ? '천장 가능' : '천장 불가'}
                 </span>
               </div>
-              <p className="mc-run-desc" style={{ margin: 0 }}>{meta.desc}</p>
+              <p className="mc-run-desc" style={{ margin: '2px 0 8px' }}>{meta.desc}</p>
+
+              {/* 수치 */}
               <div className="mc-result-dashboard__scenario-stats">
                 <div className="mc-result-dashboard__scenario-stat">
                   <span className="mc-result-dashboard__scenario-stat-label">추가 갈피</span>
@@ -245,6 +279,9 @@ function EmergencyScenarioList({ emergencyRun, skystones, rerolls, expectedHits 
                   <span className="mc-run-pulls">+{(val.extraPulls ?? 0).toLocaleString()}</span>
                 </div>
               </div>
+
+              {/* 요약 문구 */}
+              <p className="mc-scenario__summary">{summaryText}</p>
             </div>
           );
         })}
@@ -364,6 +401,7 @@ export default function ResultStep({ result, comment, onReset, showPackage }) {
         skystones={skystones}
         rerolls={rerolls}
         expectedHits={expectedHits}
+        requiredMysticMedals={requiredMysticMedals}
       />
 
       {/* 6. 패키지 추천 */}
