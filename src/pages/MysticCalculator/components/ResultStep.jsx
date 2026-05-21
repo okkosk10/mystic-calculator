@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import { toPng } from 'html-to-image';
 import packageRecommendations from '../data/packageRecommendations';
 import '../MysticCalculator.css';
 
@@ -217,13 +218,14 @@ function EmergencySummary({ emergencyRun, skystones, rerolls, expectedHits, requ
           className="mc-emergency-toggle"
           onClick={() => setOpen(v => !v)}
           aria-expanded={open}
+          data-capture-exclude="true"
         >
           {open ? '접기' : '자세히'}
         </button>
       </div>
 
       {open && (
-        <div className="mc-emergency-detail">
+        <div className="mc-emergency-detail" data-capture-exclude="true">
           <p className="mc-run-meta">
             하늘석 {(skystones ?? 0).toLocaleString()}개 &middot; 리롤 {(rerolls ?? 0).toLocaleString()}회 &middot; 기댓값 {expectedHits ?? 0}회
             <br />
@@ -318,11 +320,16 @@ function PackageRecommendationList({ pkgs }) {
 }
 
 /* ── 7. 액션 버튼 ── */
-function ResultActions({ onReset }) {
+function ResultActions({ onReset, onCapture, isCapturing }) {
   return (
     <div className="mc-result-dashboard__actions">
-      <button type="button" className="mc-result-dashboard__btn-capture" disabled title="준비 중인 기능입니다">
-        결과 캡쳐 (준비 중)
+      <button
+        type="button"
+        className="mc-result-dashboard__btn-capture"
+        onClick={onCapture}
+        disabled={isCapturing}
+      >
+        {isCapturing ? '콡쳐 중...' : '결과 콡쳐'}
       </button>
       <button type="button" className="mc-btn-calc mc-result-dashboard__btn-reset" onClick={onReset}>
         다시 계산하기
@@ -333,6 +340,9 @@ function ResultActions({ onReset }) {
 
 /* ── 메인 컴포넌트 ── */
 export default function ResultStep({ result, comment, onReset, showPackage }) {
+  const [isCapturing, setIsCapturing] = useState(false);
+  const captureRef = useRef(null);
+
   if (!result) return null;
 
   const {
@@ -350,34 +360,69 @@ export default function ResultStep({ result, comment, onReset, showPackage }) {
     expectedHits = 0,
   } = result;
 
+  async function handleCapture() {
+    if (isCapturing || !captureRef.current) return;
+    setIsCapturing(true);
+    try {
+      await document.fonts.ready;
+      const dataUrl = await toPng(captureRef.current, {
+        cacheBust: true,
+        pixelRatio: 2,
+        backgroundColor: '#0f0c1a',
+        filter: (node) => node.getAttribute?.('data-capture-exclude') !== 'true',
+      });
+
+      if (typeof navigator !== 'undefined' && navigator.canShare) {
+        const res = await fetch(dataUrl);
+        const blob = await res.blob();
+        const file = new File([blob], 'mystic-result.png', { type: 'image/png' });
+        if (navigator.canShare({ files: [file] })) {
+          await navigator.share({ files: [file], title: '신비뽑기 계산 결과' });
+          setIsCapturing(false);
+          return;
+        }
+      }
+
+      const a = document.createElement('a');
+      a.href = dataUrl;
+      a.download = 'mystic-result.png';
+      a.click();
+    } catch (err) {
+      console.error('캡쳐 실패:', err);
+      alert('캡쳐에 실패했습니다. 다시 시도해주세요.');
+    } finally {
+      setIsCapturing(false);
+    }
+  }
+
   return (
     <div className="mc-result-dashboard">
-      {/* Hero: 마스코트 + 판정 + 부족갈피 + 준비도 */}
-      <ResultHeroCard
-        comment={comment}
-        canReachPity={canReachPity}
-        shortfallMedals={shortfallMedals}
-        requiredMysticMedals={requiredMysticMedals}
-        emergencyRun={emergencyRun}
-        pity={pity}
-        medals={medals}
-      />
+      {/* 캡쳐 대상 영역: Hero + QuickStats + EmergencySummary */}
+      <div ref={captureRef} className="mc-capture-area">
+        <ResultHeroCard
+          comment={comment}
+          canReachPity={canReachPity}
+          shortfallMedals={shortfallMedals}
+          requiredMysticMedals={requiredMysticMedals}
+          emergencyRun={emergencyRun}
+          pity={pity}
+          medals={medals}
+        />
 
-      {/* Quick Stats: 가능 뽑기 / 5성 확률 / 필요 갈피 */}
-      <QuickStatsRow
-        requiredMysticMedals={requiredMysticMedals}
-        possiblePulls={possiblePulls}
-        probWithCurrentMedals={probWithCurrentMedals}
-      />
+        <QuickStatsRow
+          requiredMysticMedals={requiredMysticMedals}
+          possiblePulls={possiblePulls}
+          probWithCurrentMedals={probWithCurrentMedals}
+        />
 
-      {/* 비상런 한 줄 결론 + 접기/펼치기 */}
-      <EmergencySummary
-        emergencyRun={emergencyRun}
-        skystones={skystones}
-        rerolls={rerolls}
-        expectedHits={expectedHits}
-        requiredMysticMedals={requiredMysticMedals}
-      />
+        <EmergencySummary
+          emergencyRun={emergencyRun}
+          skystones={skystones}
+          rerolls={rerolls}
+          expectedHits={expectedHits}
+          requiredMysticMedals={requiredMysticMedals}
+        />
+      </div>
 
       {/* 확률 상세 (보조) */}
       <ProbabilityDetail
@@ -391,7 +436,7 @@ export default function ResultStep({ result, comment, onReset, showPackage }) {
       {showPackage && <PackageRecommendationList pkgs={packageRecommendations} />}
 
       {/* 액션 버튼 */}
-      <ResultActions onReset={onReset} />
+      <ResultActions onReset={onReset} onCapture={handleCapture} isCapturing={isCapturing} />
     </div>
   );
 }
