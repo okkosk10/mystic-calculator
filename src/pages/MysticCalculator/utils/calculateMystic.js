@@ -70,17 +70,10 @@ export function calculateMystic({
   // ── 필요 신비 메달 계산 ──
   // 할인 ON:  앞 30회 × 35개 + 나머지 × 50개
   // 할인 OFF: 전 회 × 50개
-  let discountedPulls = 0;
-  let regularPulls = 0;
-  let discountSavedMedals = 0;
-  if (useEarlyDiscount) {
-    discountedPulls = Math.min(EARLY_DISCOUNT_MAX_PULLS, pity);
-    regularPulls = Math.max(0, pity - EARLY_DISCOUNT_MAX_PULLS);
-    // 절약 = 할인 횟수 × (50 - 35) = × 15
-    discountSavedMedals = discountedPulls * (MEDALS_PER_PULL - DISCOUNTED_MEDALS_PER_PULL);
-  } else {
-    regularPulls = pity;
-  }
+  const discountedPulls = useEarlyDiscount ? Math.min(EARLY_DISCOUNT_MAX_PULLS, pity) : 0;
+  const regularPulls = useEarlyDiscount ? Math.max(0, pity - EARLY_DISCOUNT_MAX_PULLS) : pity;
+  // 절약 = 할인 횟수 × (50 - 35) = × 15
+  const discountSavedMedals = discountedPulls * (MEDALS_PER_PULL - DISCOUNTED_MEDALS_PER_PULL);
   const requiredMysticMedals =
     discountedPulls * DISCOUNTED_MEDALS_PER_PULL + regularPulls * MEDALS_PER_PULL;
 
