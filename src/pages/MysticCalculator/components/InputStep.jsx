@@ -48,7 +48,7 @@ export default function InputStep({ values, onChange, onSubmit }) {
       {/* 캐릭터 이미지 */}
       <div className="mc-char-stage">
         <img
-          src="/image/head_big.png"
+          src="/image/head_big.webp"
           alt="에장연 캐릭터"
           className="mc-char-img mc-char-float mc-char-input"
         />

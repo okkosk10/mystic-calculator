@@ -5,7 +5,7 @@ export default function LoadingStep() {
     <div className="mc-step-loading">
       <div className="mc-loading-char-wrap">
         <img
-          src="/image/head_th.png"
+          src="/image/head_th.webp"
           alt="분석 중인 에장연 캐릭터"
           className="mc-char-img thinking-mascot"
         />

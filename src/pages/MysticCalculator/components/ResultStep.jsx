@@ -7,19 +7,19 @@ const RUN_LABELS = {
   conservative: {
     label: '폭사 루트',
     desc: '기댓값 −1σ',
-    image: '/image/route_disaster.png',
+    image: '/image/route_disaster.webp',
     tone: 'disaster',
   },
   average: {
     label: '평타 루트',
     desc: '기댓값 (E)',
-    image: '/image/route_normal.png',
+    image: '/image/route_normal.webp',
     tone: 'normal',
   },
   lucky: {
     label: '대박 루트',
     desc: '기댓값 +1σ',
-    image: '/image/route_jackpot.png',
+    image: '/image/route_jackpot.webp',
     tone: 'jackpot',
   },
 };
@@ -54,11 +54,11 @@ function getProbBarColor(prob) {
 
 
 function getMascotImage(canReachPity, pity, emergencyRun) {
-  if (pity === 0) return '/image/ezang_normal.png';
-  if (canReachPity) return '/image/ezang_happy.png';
-  if (emergencyRun?.average?.canReachPityWithRun) return '/image/ezang_normal.png';
-  if (emergencyRun?.lucky?.canReachPityWithRun) return '/image/ezang_sad.png';
-  return '/image/ezang_sad.png';
+  if (pity === 0) return '/image/ezang_normal.webp';
+  if (canReachPity) return '/image/ezang_happy.webp';
+  if (emergencyRun?.average?.canReachPityWithRun) return '/image/ezang_normal.webp';
+  if (emergencyRun?.lucky?.canReachPityWithRun) return '/image/ezang_sad.webp';
+  return '/image/ezang_sad.webp';
 }
 
 function getEmergencySummary(emergencyRun) {
