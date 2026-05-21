@@ -3,12 +3,12 @@
  * 신비뽑기 1회 = 신비갈피 50개
  */
 
-const MEDALS_PER_PULL = 50;
+export const MEDALS_PER_PULL = 50;
 
 // 비밀상점 비상런 기준 (비밀상점 Lv.13 공식 확률표)
-const SKYSTONES_PER_REROLL = 3;          // 리롤 1회 비용
-const MEDAL_APPEAR_PROB = 0.001700646;   // 0.1700646% per 리롤
-const MEDALS_PER_HIT = 3;               // 등장 시 구매 가능 수량
+export const SKYSTONES_PER_REROLL = 3;          // 리롤 1회 비용
+export const MEDAL_APPEAR_PROB = 0.001700646;   // 0.1700646% per 리롤
+export const MEDALS_PER_HIT = 50;               // 등장 시 구매 가능 신비 메달 수량
 
 // 신비뽑기 5성 확률
 const FIVE_STAR_PROB = 0.00625;          // 0.625% per 뽑기

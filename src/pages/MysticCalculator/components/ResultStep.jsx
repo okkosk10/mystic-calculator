@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import { toPng } from 'html-to-image';
 import packageRecommendations from '../data/packageRecommendations';
+import { formatExpectedMedals, getPackageRecommendations } from '../utils/packageRecommendation';
 import '../MysticCalculator.css';
 
 /* ── 상수 ── */
@@ -282,33 +283,62 @@ function EmergencySummary({ emergencyRun, skystones, rerolls, expectedHits, requ
   );
 }
 
-function PackageRecommendationList({ pkgs }) {
+function PackageRecommendationList({ pkgs, result }) {
+  const recommendations = getPackageRecommendations(pkgs, result);
+
+  if (recommendations.length === 0) return null;
+
   return (
     <div className="mc-card mc-package-card">
-      <h2 className="mc-card-title">패키지 참고 안내</h2>
+      <h2 className="mc-card-title">패키지 추천</h2>
       <p className="mc-package-notice">
-        ⚠ 아래는 <strong>상점 화면 기준 수동 정리 데이터</strong>입니다. 실제 구매 전 게임 내 상점을 확인하세요.
+        신비 메달 직접 지급량과 하늘석 비상런 기대값만 반영한 참고 추천입니다. 실제 구매 전 게임 내 상점을 확인하세요.
       </p>
       <ul className="mc-result-dashboard__pkg-list">
-        {(pkgs ?? []).map((pkg, i) => {
+        {recommendations.map((pkg, i) => {
           const meta = [
-            pkg.availabilityLabel ?? (pkg.purchaseLimit ? `구매 가능 횟수 ${pkg.purchaseLimit}회` : null),
+            pkg.availabilityLabel ?? (pkg.purchaseLimit ? `구매 가능 ${pkg.purchaseLimit}회` : null),
             pkg.salePeriod,
           ].filter(Boolean).join(' · ');
+          const expectedMysticText = formatExpectedMedals(pkg.effectiveMysticMedals);
+          const skyText = pkg.skystones > 0
+            ? `하늘석 ${pkg.skystones.toLocaleString()}개 → 기대 신비 ${formatExpectedMedals(pkg.expectedMysticMedalsFromSkystones)}개`
+            : null;
 
           return (
             <li
               key={pkg.id}
-              className="mc-result-dashboard__pkg-item"
+              className={`mc-result-dashboard__pkg-item mc-result-dashboard__pkg-item--${pkg.tone}`}
               style={{ animationDelay: `${i * 0.08}s` }}
             >
               <div className="mc-result-dashboard__pkg-rank">#{i + 1}</div>
               <div className="mc-package-info">
-                <span className="mc-package-name">{pkg.name}</span>
-                <span className="mc-package-desc">{pkg.description}</span>
+                <div className="mc-package-title-row">
+                  <span className="mc-package-name">{pkg.name}</span>
+                  <span className={`mc-package-fit mc-package-fit--${pkg.tone}`}>
+                    {pkg.canReachPity ? '천장 가능' : `${Math.round(pkg.coverRatio * 100)}% 보충`}
+                  </span>
+                </div>
+                <span className="mc-package-desc">{pkg.reason}</span>
+                <div className="mc-package-value-grid">
+                  <span>기대 신비 {expectedMysticText}개</span>
+                  <span>예상 뽑기 {pkg.expectedPulls.toFixed(1)}회</span>
+                  <span>남은 부족분 {Math.ceil(pkg.missingAfterPackage).toLocaleString()}개</span>
+                </div>
+                <span className="mc-package-desc">
+                  직접 신비 {pkg.directMysticMedals.toLocaleString()}개
+                  {skyText ? ` · ${skyText}` : ''}
+                </span>
                 {meta && <span className="mc-package-desc">{meta}</span>}
               </div>
-              <span className="mc-result-dashboard__price-badge">{pkg.priceLabel}</span>
+              <div className="mc-package-price-col">
+                <span className="mc-result-dashboard__price-badge">{pkg.totalPriceLabel}</span>
+                {Number.isFinite(pkg.pricePerPull) && (
+                  <span className="mc-package-efficiency">
+                    1뽑 약 {Math.round(pkg.pricePerPull).toLocaleString()}원
+                  </span>
+                )}
+              </div>
             </li>
           );
         })}
@@ -429,7 +459,7 @@ export default function ResultStep({ result, comment, onReset, showPackage }) {
       />
 
       {/* 패키지 추천 */}
-      {showPackage && <PackageRecommendationList pkgs={packageRecommendations} />}
+      {showPackage && <PackageRecommendationList pkgs={packageRecommendations} result={result} />}
 
       {/* 액션 버튼 */}
       <ResultActions onReset={onReset} onCapture={handleCapture} isCapturing={isCapturing} />
