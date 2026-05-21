@@ -282,23 +282,20 @@ function EmergencySummary({ emergencyRun, skystones, rerolls, expectedHits, requ
   );
 }
 
-/* ── 6. 패키지 추천 리스트 ── */
-const FITNESS_MAP = {
-  1: { label: '높음', cls: 'mc-result-dashboard__fitness--high' },
-  2: { label: '중간', cls: 'mc-result-dashboard__fitness--mid' },
-  3: { label: '낮음',  cls: 'mc-result-dashboard__fitness--low' },
-};
-
 function PackageRecommendationList({ pkgs }) {
   return (
     <div className="mc-card mc-package-card">
       <h2 className="mc-card-title">패키지 참고 안내</h2>
       <p className="mc-package-notice">
-        ⚠ 아래는 <strong>예시(Mock) 데이터</strong>입니다. 실제 구매는 게임 내 상점을 확인하세요.
+        ⚠ 아래는 <strong>상점 화면 기준 수동 정리 데이터</strong>입니다. 실제 구매 전 게임 내 상점을 확인하세요.
       </p>
       <ul className="mc-result-dashboard__pkg-list">
         {(pkgs ?? []).map((pkg, i) => {
-          const fitness = FITNESS_MAP[pkg.priority ?? 3] ?? FITNESS_MAP[3];
+          const meta = [
+            pkg.availabilityLabel ?? (pkg.purchaseLimit ? `구매 가능 횟수 ${pkg.purchaseLimit}회` : null),
+            pkg.salePeriod,
+          ].filter(Boolean).join(' · ');
+
           return (
             <li
               key={pkg.id}
@@ -309,8 +306,9 @@ function PackageRecommendationList({ pkgs }) {
               <div className="mc-package-info">
                 <span className="mc-package-name">{pkg.name}</span>
                 <span className="mc-package-desc">{pkg.description}</span>
+                {meta && <span className="mc-package-desc">{meta}</span>}
               </div>
-              <span className={`mc-result-dashboard__fitness-badge ${fitness.cls}`}>{fitness.label}</span>
+              <span className="mc-result-dashboard__price-badge">{pkg.priceLabel}</span>
             </li>
           );
         })}
@@ -322,7 +320,7 @@ function PackageRecommendationList({ pkgs }) {
 /* ── 7. 액션 버튼 ── */
 function ResultActions({ onReset, onCapture, isCapturing }) {
   return (
-    <div className="mc-result-dashboard__actions">
+    <div className="mc-result-dashboard__actions" data-capture-exclude="true">
       <button
         type="button"
         className="mc-result-dashboard__btn-capture"
@@ -372,7 +370,8 @@ export default function ResultStep({ result, comment, onReset, showPackage }) {
         filter: (node) => node.getAttribute?.('data-capture-exclude') !== 'true',
       });
 
-      if (typeof navigator !== 'undefined' && navigator.canShare) {
+      const isMobile = navigator.maxTouchPoints > 0;
+      if (isMobile && navigator.canShare) {
         const res = await fetch(dataUrl);
         const blob = await res.blob();
         const file = new File([blob], 'mystic-result.png', { type: 'image/png' });
@@ -396,33 +395,30 @@ export default function ResultStep({ result, comment, onReset, showPackage }) {
   }
 
   return (
-    <div className="mc-result-dashboard">
-      {/* 캡쳐 대상 영역: Hero + QuickStats + EmergencySummary */}
-      <div ref={captureRef} className="mc-capture-area">
-        <ResultHeroCard
-          comment={comment}
-          canReachPity={canReachPity}
-          shortfallMedals={shortfallMedals}
-          requiredMysticMedals={requiredMysticMedals}
-          emergencyRun={emergencyRun}
-          pity={pity}
-          medals={medals}
-        />
+    <div ref={captureRef} className="mc-result-dashboard">
+      <ResultHeroCard
+        comment={comment}
+        canReachPity={canReachPity}
+        shortfallMedals={shortfallMedals}
+        requiredMysticMedals={requiredMysticMedals}
+        emergencyRun={emergencyRun}
+        pity={pity}
+        medals={medals}
+      />
 
-        <QuickStatsRow
-          requiredMysticMedals={requiredMysticMedals}
-          possiblePulls={possiblePulls}
-          probWithCurrentMedals={probWithCurrentMedals}
-        />
+      <QuickStatsRow
+        requiredMysticMedals={requiredMysticMedals}
+        possiblePulls={possiblePulls}
+        probWithCurrentMedals={probWithCurrentMedals}
+      />
 
-        <EmergencySummary
-          emergencyRun={emergencyRun}
-          skystones={skystones}
-          rerolls={rerolls}
-          expectedHits={expectedHits}
-          requiredMysticMedals={requiredMysticMedals}
-        />
-      </div>
+      <EmergencySummary
+        emergencyRun={emergencyRun}
+        skystones={skystones}
+        rerolls={rerolls}
+        expectedHits={expectedHits}
+        requiredMysticMedals={requiredMysticMedals}
+      />
 
       {/* 확률 상세 (보조) */}
       <ProbabilityDetail
