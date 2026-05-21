@@ -150,6 +150,20 @@ function QuickStatsRow({ requiredMysticMedals, possiblePulls, probWithCurrentMed
   );
 }
 
+/* ── DiscountBadge: 할인 적용 시 절약 정보 ── */
+function DiscountBadge({ useEarlyDiscount, discountedPulls, discountSavedMedals }) {
+  if (!useEarlyDiscount || discountedPulls === 0) return null;
+  return (
+    <div className="mc-discount-badge">
+      <span className="mc-discount-badge-icon">✦</span>
+      <span className="mc-discount-badge-text">
+        초반 {discountedPulls}회 할인 적용
+        <span className="mc-discount-badge-save"> · {discountSavedMedals.toLocaleString()}개 절약</span>
+      </span>
+    </div>
+  );
+}
+
 /* ── 확률 상세 (보조 영역) ── */
 function ProbabilityDetail({ probBeforePity, probWithCurrentMedals, pity, possiblePulls }) {
   const rows = [
@@ -390,6 +404,9 @@ export default function ResultStep({ result, comment, onReset, showPackage }) {
     skystones = 0,
     rerolls = 0,
     expectedHits = 0,
+    useEarlyDiscount = false,
+    discountedPulls = 0,
+    discountSavedMedals = 0,
   } = result;
 
   async function handleCapture() {
@@ -444,6 +461,12 @@ export default function ResultStep({ result, comment, onReset, showPackage }) {
         requiredMysticMedals={requiredMysticMedals}
         possiblePulls={possiblePulls}
         probWithCurrentMedals={probWithCurrentMedals}
+      />
+
+      <DiscountBadge
+        useEarlyDiscount={useEarlyDiscount}
+        discountedPulls={discountedPulls}
+        discountSavedMedals={discountSavedMedals}
       />
 
       <EmergencySummary

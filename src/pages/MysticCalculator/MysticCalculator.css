@@ -535,6 +535,99 @@
   transform: scale(0.98);
 }
 
+/* ---------- 할인 토글 ---------- */
+.mc-discount-toggle {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+  padding: 10px 12px;
+  background: rgba(168, 85, 247, 0.07);
+  border: 1px solid rgba(168, 85, 247, 0.25);
+  border-radius: 10px;
+  margin-top: 4px;
+  margin-bottom: 0;
+}
+
+.mc-discount-checkbox {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.mc-discount-toggle-box {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  border: 2px solid var(--mc-primary);
+  border-radius: 5px;
+  background: transparent;
+  transition: background 0.18s, border-color 0.18s;
+  position: relative;
+}
+
+.mc-discount-checkbox:checked + .mc-discount-toggle-box {
+  background: var(--mc-primary);
+}
+
+.mc-discount-checkbox:checked + .mc-discount-toggle-box::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 4px;
+  width: 6px;
+  height: 10px;
+  border: 2px solid #fff;
+  border-top: none;
+  border-left: none;
+  transform: rotate(45deg);
+}
+
+.mc-discount-toggle-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 0.9rem;
+  color: var(--mc-text);
+  line-height: 1.4;
+}
+
+.mc-discount-toggle-hint {
+  font-size: 0.76rem;
+  color: var(--mc-text-muted);
+}
+
+/* ---------- 할인 배지 (결과 화면) ---------- */
+.mc-discount-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: rgba(168, 85, 247, 0.1);
+  border: 1px solid rgba(168, 85, 247, 0.3);
+  border-radius: 10px;
+  margin-bottom: 4px;
+}
+
+.mc-discount-badge-icon {
+  font-size: 0.85rem;
+  color: var(--mc-primary-light);
+}
+
+.mc-discount-badge-text {
+  font-size: 0.85rem;
+  color: var(--mc-primary-light);
+  font-weight: 500;
+}
+
+.mc-discount-badge-save {
+  color: var(--mc-safe);
+  font-weight: 600;
+}
+
 /* ---------- 결과 카드 ---------- */
 .mc-result-list {
   list-style: none;

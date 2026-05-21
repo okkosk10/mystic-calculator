@@ -10,6 +10,7 @@ const DEFAULT_VALUES = {
   currentMysticMedals: '500',
   currentSkystones: '3000',
   remainingPityCount: '200',
+  useEarlyDiscount: false,
 };
 
 function parseInput(values) {
@@ -17,6 +18,7 @@ function parseInput(values) {
     currentMysticMedals: values.currentMysticMedals === '' ? 0 : Number(values.currentMysticMedals),
     currentSkystones: values.currentSkystones === '' ? 0 : Number(values.currentSkystones),
     remainingPityCount: values.remainingPityCount === '' ? 0 : Number(values.remainingPityCount),
+    useEarlyDiscount: !!values.useEarlyDiscount,
   };
 }
 
