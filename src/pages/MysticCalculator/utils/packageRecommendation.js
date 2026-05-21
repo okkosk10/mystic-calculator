@@ -7,6 +7,21 @@ import {
 
 const DEFAULT_MAX_RECOMMENDATIONS = 5;
 
+function parseEndDate(salePeriod) {
+  if (!salePeriod) return null;
+  const match = salePeriod.match(/-\s*(\d{2})\/(\d{2})\s+(\d{2}):(\d{2})/);
+  if (!match) return null;
+  const [, month, day, hour, minute] = match;
+  const year = new Date().getFullYear();
+  return new Date(year, Number(month) - 1, Number(day), Number(hour), Number(minute));
+}
+
+function isExpired(pkg) {
+  const endDate = parseEndDate(pkg.salePeriod);
+  if (!endDate) return false;
+  return endDate < new Date();
+}
+
 function normalizeName(name) {
   return String(name ?? '').replace(/\s/g, '');
 }
@@ -123,6 +138,7 @@ export function getPackageRecommendations(packages, result, options = {}) {
 
   const limit = options.limit ?? DEFAULT_MAX_RECOMMENDATIONS;
   return (packages ?? [])
+    .filter((pkg) => !isExpired(pkg))
     .map((pkg) => evaluatePackage(pkg, result))
     .filter(Boolean)
     .sort(comparePackages)

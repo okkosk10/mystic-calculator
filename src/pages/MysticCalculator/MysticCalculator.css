@@ -373,6 +373,22 @@
   text-align: right;
 }
 
+.mc-package-total {
+  margin-top: 12px;
+  padding: 10px 14px;
+  background: rgba(168, 85, 247, 0.08);
+  border: 1px solid rgba(168, 85, 247, 0.25);
+  border-radius: 10px;
+  font-size: 0.85rem;
+  color: var(--mc-text-muted);
+  text-align: right;
+}
+
+.mc-package-total strong {
+  color: var(--mc-primary-light, #c084fc);
+  font-size: 1rem;
+}
+
 .mc-package-price {
   font-size: 0.8rem;
   font-weight: 700;
