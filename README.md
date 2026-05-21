@@ -1,8 +1,8 @@
-신비뽑기 계산기 (Mystic Calculator)
+# 신비뽑기 계산기 (Mystic Calculator)
 
 에픽세븐 신비뽑기 천장 계산, 비상런 예측, 과금 효율 분석을 위한 웹 애플리케이션입니다.
 
-프로젝트 소개
+## 프로젝트 소개
 
 신비뽑기에서 가장 중요한 요소인 천장까지의 거리, 현재 자원으로 가능한 뽑기 횟수,
 그리고 비상런 및 과금 효율을 한 번에 계산할 수 있는 도구입니다.
@@ -10,77 +10,93 @@
 단순 계산기를 넘어,
 확률 기반 분석과 사용자 행동 가이드를 제공하는 것을 목표로 합니다.
 
-주요 기능
-✅ 신비뽑기 천장 계산
-✅ 현재 보유 자원 기반 뽑기 가능 횟수 계산
-✅ 비상런(상점 갱신) 예상 획득량 계산
-✅ 과금 효율 분석 및 추천
-✅ 상황별 추천 액션 제공 (존버 / 진행 / 과금)
-핵심 로직
-입력값:
-- 신비갈피
-- 하늘석
-- 천장까지 남은 횟수
+## 주요 기능
 
-계산:
+- ✅ 신비뽑기 천장 계산
+- ✅ 현재 보유 자원 기반 뽑기 가능 횟수 계산
+- ✅ 비상런(상점 갱신) 예상 획득량 계산 (보수 / 평균 / 운좋음 시나리오)
+- ✅ 5성 등장 확률 비교
+- ✅ 상황별 마스코트 멘트 & 추천 액션 (존버 / 비상런 / 천장 불가)
+- ✅ 패키지 참고 안내 (Mock 데이터 기반)
+
+## 핵심 로직
+
+**입력값:**
+- 신비갈피 보유량
+- 하늘석 보유량
+- 천장까지 남은 횟수 (피티 카운트)
+
+**계산:**
 - 필요 신비갈피 = 남은 뽑기 횟수 × 50
-- 현재 가능 뽑기 수 = 보유 신비갈피 / 50
+- 현재 가능 뽑기 수 = 보유 신비갈피 ÷ 50
 - 부족분 계산
 - 비상런 기대값 (보수 / 평균 / 운좋음 시나리오)
+- 5성 확률 (0.625% / 뽑기 기준)
 
-출력:
-- 천장 가능 여부
-- 부족 자원
-- 추천 액션
+**출력:**
+- 천장 가능 여부 판정
+- 부족 자원 및 천장 준비도 Progress Bar
+- 비상런 시나리오 카드
+- 추천 액션 & 마스코트 멘트
 
-기술 스택
-Frontend: React + Vite
-Styling: TailwindCSS v3
-State Management: Zustand
-Chart: (추후 적용 예정)
-Storage: LocalStorage
-Deployment: Vercel
+## 기술 스택
 
-프로젝트 구조
+| 항목 | 기술 |
+|------|------|
+| Frontend | React 19 + Vite |
+| Styling | CSS Modules (커스텀 CSS) |
+| 빌드 | Vite |
+| 배포 | Vercel |
+
+## 프로젝트 구조
+
+```
 src/
   pages/
     MysticCalculator/
-      index.jsx
+      index.jsx               # 메인 진입점 (Step 라우팅)
+      MysticCalculator.css    # 전체 스타일
       components/
-        MysticInputForm.jsx
-        MysticResultCard.jsx
-        MysticRunEstimate.jsx
-        RecommendationPanel.jsx
+        InputStep.jsx         # 입력 단계
+        LoadingStep.jsx       # 로딩 단계
+        ResultStep.jsx        # 결과 단계 (메인 대시보드)
+      data/
+        packageRecommendations.js   # 패키지 목록 (Mock)
       utils/
-        calculateMystic.js
-        recommendationRules.js
-      store/
-        useMysticStore.js
+        calculateMystic.js    # 핵심 계산 로직
+        recommendationRules.js # 마스코트 멘트 & 패키지 추천 규칙
+```
 
-기획 의도
+## 기획 의도
 
-기존에는 신비뽑기를 진행할 때
-"지금 뽑아도 되는지", "천장까지 가능한지"를 감으로 판단하는 경우가 많았습니다.
+기존에는 신비뽑기를 진행할 때 "지금 뽑아도 되는지", "천장까지 가능한지"를
+감으로 판단하는 경우가 많았습니다.
 
 이 프로젝트는 이를 해결하기 위해:
 
-정량적인 계산 제공
-확률 기반 분석
-명확한 의사결정 가이드
+- 정량적인 계산 제공
+- 확률 기반 분석
+- 명확한 의사결정 가이드
 
 를 목표로 제작되었습니다.
 
-향후 확장 계획
-성약뽑기 계산기 추가
-장비 강화 확률 계산 기능
-사용자 데이터 저장 (로그 기반 분석)
-통계 및 시각화 기능 추가
-모바일 앱(PWA / Flutter) 확장
+## 실행 방법
 
-실행 방법
+```bash
 yarn install
 yarn dev
+```
 
-배포
+## 배포
 
 Vercel을 통해 배포 예정
+
+## 향후 확장 계획
+
+- 성약뽑기 계산기 추가
+- 장비 강화 확률 계산 기능
+- 결과 이미지 캡쳐 / 공유 기능
+- 사용자 데이터 저장 (로그 기반 분석)
+- 통계 및 시각화 기능 추가
+- 모바일 앱(PWA / Flutter) 확장
+

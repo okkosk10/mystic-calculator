@@ -1,9 +1,9 @@
 import '../MysticCalculator.css';
 
 const FIELDS = [
+  { name: 'remainingPityCount',  label: '천장까지 남은 횟수',  placeholder: '예) 200', max: 200 },
   { name: 'currentMysticMedals', label: '현재 보유 신비갈피', placeholder: '예) 500', max: undefined },
   { name: 'currentSkystones',    label: '보유 하늘석',         placeholder: '예) 3000', max: undefined },
-  { name: 'remainingPityCount',  label: '천장까지 남은 횟수',  placeholder: '예) 200', max: 200 },
 ];
 
 export default function InputStep({ values, onChange, onSubmit }) {
@@ -50,7 +50,7 @@ export default function InputStep({ values, onChange, onSubmit }) {
         <img
           src="/image/head_big.png"
           alt="에장연 캐릭터"
-          className="mc-char-img mc-char-float"
+          className="mc-char-img mc-char-float mc-char-input"
         />
       </div>
 

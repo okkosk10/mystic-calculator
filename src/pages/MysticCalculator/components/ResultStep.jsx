@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import packageRecommendations from '../data/packageRecommendations';
 import '../MysticCalculator.css';
 
@@ -51,9 +52,7 @@ function getProbBarColor(prob) {
   return 'var(--mc-danger)';
 }
 
-function handleCaptureResult() {
-  alert('결과 캡쳐 기능은 추후 추가 예정입니다.');
-}
+
 function getMascotImage(canReachPity, pity, emergencyRun) {
   if (pity === 0) return '/image/ezang_normal.png';
   if (canReachPity) return '/image/ezang_happy.png';
@@ -61,71 +60,62 @@ function getMascotImage(canReachPity, pity, emergencyRun) {
   if (emergencyRun?.lucky?.canReachPityWithRun) return '/image/ezang_sad.png';
   return '/image/ezang_sad.png';
 }
-/* ── 1+2. 마스코트 + 판정 + 천장 준비도 통합 카드 ── */
-function TopSummaryCard({ comment, canReachPity, shortfallMedals, requiredMysticMedals, possiblePulls, probWithCurrentMedals, emergencyRun, pity, medals }) {
+
+function getEmergencySummary(emergencyRun) {
+  if (!emergencyRun) return null;
+  const entries = Object.entries(emergencyRun);
+  const allCanReach = entries.every(([, v]) => v.canReachPityWithRun);
+  const avgCanReach = emergencyRun.average?.canReachPityWithRun;
+  const luckyCanReach = emergencyRun.lucky?.canReachPityWithRun;
+  if (allCanReach) return { text: '비상런 시 천장 도달 가능성이 충분합니다', status: 'success' };
+  if (avgCanReach) return { text: '평균 비상런 기준 천장권입니다', status: 'success' };
+  if (luckyCanReach) return { text: '운이 좋으면 비상런으로 커버 가능합니다', status: 'warning' };
+  return { text: '평균 기준으로는 비상런으로도 천장 도달이 어렵습니다', status: 'danger' };
+}
+
+/* ── ResultHeroCard: 마스코트 + 판정 + 부족갈피 + 준비도 ── */
+function ResultHeroCard({ comment, canReachPity, shortfallMedals, requiredMysticMedals, emergencyRun, pity, medals }) {
   const verdict = getVerdict(canReachPity, shortfallMedals, requiredMysticMedals, emergencyRun);
   const current = Math.max(0, medals ?? 0);
   const required = Math.max(1, requiredMysticMedals ?? 1);
   const progressPct = Math.min(100, Math.round((current / required) * 100));
   const barColor = progressPct >= 80 ? 'var(--mc-safe)' : progressPct >= 40 ? '#fbbf24' : 'var(--mc-danger)';
   const mascotImg = getMascotImage(canReachPity, pity, emergencyRun);
+
   return (
-    <div className={`mc-result-dashboard__top-card mc-result-dashboard__decision--${verdict.status}`}>
-      {/* 마스코트 멘트 */}
+    <div className={`mc-hero-card mc-hero-card--${verdict.status}`}>
+      {/* 마스코트 + 말풍선 가로 배치 */}
       {comment && (
-        <div className="mc-mascot-area">
-          <div className="mc-mascot-speech-bubble">
-            <p className="mc-mascot-text">{comment}</p>
+        <div className="mc-hero-mascot-row">
+          <img src={mascotImg} alt="에장연" className="mc-hero-mascot-img" />
+          <div className="mc-hero-speech-bubble">
+            <p className="mc-hero-speech-text">{comment}</p>
           </div>
-          <img
-            src={mascotImg}
-            alt="에장연"
-            className="mc-mascot-character"
-          />
         </div>
       )}
 
-      {/* 구분선 */}
-      {comment && <div className="mc-result-dashboard__top-divider" />}
+      {/* 판정 뱃지 */}
+      <div className={`mc-hero-verdict mc-hero-verdict--${verdict.status}`}>{verdict.label}</div>
+      <p className="mc-hero-verdict-desc">{verdict.desc}</p>
 
-      {/* 판정 */}
-      <div className="mc-result-dashboard__decision-badge">{verdict.label}</div>
-      <p className="mc-result-dashboard__decision-desc">{verdict.desc}</p>
-
-      {/* 요약 수치 */}
-      <div className="mc-result-dashboard__decision-meta">
-        <div className="mc-result-dashboard__decision-meta-item">
-          <span className="mc-result-dashboard__decision-meta-label">부족 신비갈피</span>
-          <span className={`mc-result-dashboard__decision-meta-value ${shortfallMedals > 0 ? 'mc-value-danger' : 'mc-value-safe'}`}>
-            {shortfallMedals > 0 ? `${shortfallMedals.toLocaleString()}개` : '충족'}
-          </span>
-        </div>
-        <div className="mc-result-dashboard__decision-meta-divider" />
-        <div className="mc-result-dashboard__decision-meta-item">
-          <span className="mc-result-dashboard__decision-meta-label">현재 가능 뽑기</span>
-          <span className="mc-result-dashboard__decision-meta-value">{possiblePulls.toLocaleString()}회</span>
-        </div>
-        <div className="mc-result-dashboard__decision-meta-divider" />
-        <div className="mc-result-dashboard__decision-meta-item">
-          <span className="mc-result-dashboard__decision-meta-label">5성 확률</span>
-          <span className={`mc-result-dashboard__decision-meta-value ${getProbClass(probWithCurrentMedals)}`}>
-            {possiblePulls === 0 ? '—' : `${probWithCurrentMedals}%`}
-          </span>
-        </div>
+      {/* 부족 갈피 강조 */}
+      <div className="mc-hero-shortfall">
+        <span className="mc-hero-shortfall-label">부족 신비갈피</span>
+        <span className={`mc-hero-shortfall-value ${shortfallMedals > 0 ? 'mc-value-danger' : 'mc-value-safe'}`}>
+          {shortfallMedals > 0 ? `${shortfallMedals.toLocaleString()}개` : '충족 ✓'}
+        </span>
       </div>
 
-      {/* 천장 준비도 Progress Bar */}
-      <div className="mc-result-dashboard__top-progress">
-        <div className="mc-result-dashboard__progress-header">
-          <span className="mc-result-dashboard__progress-title">천장 준비도</span>
-          <span className="mc-result-dashboard__progress-pct">{progressPct}% 달성</span>
+      {/* 천장 준비도 */}
+      <div className="mc-hero-progress">
+        <div className="mc-hero-progress-header">
+          <span className="mc-hero-progress-label">천장 준비도</span>
+          <span className="mc-hero-progress-pct" style={{ color: barColor }}>{progressPct}%</span>
         </div>
-        <div className="mc-result-dashboard__progress-sub">
-          {current.toLocaleString()} / {required.toLocaleString()} 갈피
-        </div>
-        <div className="mc-result-dashboard__progress-track">
+        <div className="mc-hero-progress-sub">{current.toLocaleString()} / {required.toLocaleString()} 갈피</div>
+        <div className="mc-hero-progress-track">
           <div
-            className="mc-result-dashboard__progress-fill"
+            className="mc-hero-progress-fill"
             style={{ '--target-width': `${progressPct}%`, background: barColor }}
           />
         </div>
@@ -134,48 +124,32 @@ function TopSummaryCard({ comment, canReachPity, shortfallMedals, requiredMystic
   );
 }
 
-/* ── 3. 핵심 지표 카드 Grid ── */
-function StatCardGrid({ requiredMysticMedals, possiblePulls, shortfallMedals, probWithCurrentMedals, pity }) {
-  const cards = [
+/* ── QuickStatsRow: 가능 뽑기 / 5성 확률 / 필요 갈피 ── */
+function QuickStatsRow({ requiredMysticMedals, possiblePulls, probWithCurrentMedals }) {
+  const stats = [
+    { label: '가능 뽑기', value: `${(possiblePulls ?? 0).toLocaleString()}회`, cls: '' },
     {
-      label: '천장까지 필요 갈피',
-      value: `${(requiredMysticMedals ?? 0).toLocaleString()}개`,
-      colorClass: '',
-    },
-    {
-      label: '현재 가능 뽑기',
-      value: `${(possiblePulls ?? 0).toLocaleString()}회`,
-      colorClass: '',
-    },
-    {
-      label: '부족 신비갈피',
-      value: `${(shortfallMedals ?? 0).toLocaleString()}개`,
-      colorClass: (shortfallMedals ?? 0) > 0 ? 'mc-value-danger' : 'mc-value-safe',
-    },
-    {
-      label: '현재 갈피 5성 확률',
+      label: '5성 확률',
       value: possiblePulls === 0 ? '—' : `${probWithCurrentMedals ?? 0}%`,
-      colorClass: getProbClass(probWithCurrentMedals ?? 0),
+      cls: getProbClass(probWithCurrentMedals ?? 0),
     },
+    { label: '필요 갈피', value: `${(requiredMysticMedals ?? 0).toLocaleString()}개`, cls: '' },
   ];
+
   return (
-    <div className="mc-result-dashboard__stat-grid">
-      {cards.map((card, i) => (
-        <div
-          key={card.label}
-          className="mc-result-dashboard__stat-card"
-          style={{ animationDelay: `${i * 0.08}s` }}
-        >
-          <span className="mc-result-dashboard__stat-label">{card.label}</span>
-          <span className={`mc-result-dashboard__stat-value ${card.colorClass}`}>{card.value}</span>
+    <div className="mc-quick-stats">
+      {stats.map((s) => (
+        <div key={s.label} className="mc-quick-stat">
+          <span className={`mc-quick-stat-value ${s.cls}`}>{s.value}</span>
+          <span className="mc-quick-stat-label">{s.label}</span>
         </div>
       ))}
     </div>
   );
 }
 
-/* ── 4. 확률 비교 카드 ── */
-function ProbabilityCompare({ probBeforePity, probWithCurrentMedals, pity, possiblePulls }) {
+/* ── 확률 상세 (보조 영역) ── */
+function ProbabilityDetail({ probBeforePity, probWithCurrentMedals, pity, possiblePulls }) {
   const rows = [
     {
       label: '천장 전 5성 확률',
@@ -191,7 +165,7 @@ function ProbabilityCompare({ probBeforePity, probWithCurrentMedals, pity, possi
   return (
     <div className="mc-card mc-result-dashboard__prob-card">
       <h2 className="mc-card-title">
-        5성 등장 확률
+        확률 상세
         <span className="mc-card-subtitle">(0.625% / 뽑기)</span>
       </h2>
       <div className="mc-result-dashboard__prob-rows">
@@ -221,84 +195,87 @@ function ProbabilityCompare({ probBeforePity, probWithCurrentMedals, pity, possi
   );
 }
 
-/* ── 5. 비상런 시나리오 ── */
-function EmergencyScenarioList({ emergencyRun, skystones, rerolls, expectedHits, requiredMysticMedals }) {
+/* ── EmergencySummary: 한 줄 결론 + 접기/펼치기 ── */
+function EmergencySummary({ emergencyRun, skystones, rerolls, expectedHits, requiredMysticMedals }) {
+  const [open, setOpen] = useState(false);
   if (!emergencyRun) return null;
+
+  const summary = getEmergencySummary(emergencyRun);
   const entries = Object.entries(emergencyRun);
-  const allCanReach = entries.every(([, v]) => v.canReachPityWithRun);
-  const anyCanReach = entries.some(([, v]) => v.canReachPityWithRun);
-  const conclusion = allCanReach
-    ? '비상런 시 천장 도달 가능성이 충분합니다.'
-    : anyCanReach
-    ? '비상런 시 운에 따라 천장 도달이 가능할 수 있습니다.'
-    : '현재 하늘석으로는 비상런을 해도 천장 도달 가능성이 낮습니다.';
 
   return (
-    <div className="mc-card">
-      <h2 className="mc-card-title">
-        비상런 시나리오
-        <span className="mc-card-subtitle">(하늘석 {(skystones ?? 0).toLocaleString()}개 기준)</span>
-      </h2>
-      <p className="mc-run-meta">
-        리롤 {(rerolls ?? 0).toLocaleString()}회 가능 &middot; 등장 기댓값 {expectedHits ?? 0}회
-        <br />
-        <span className="mc-run-prob-hint">확률 0.1700646% / 리롤 (비밀상점 Lv.13)</span>
-      </p>
-      <div className="mc-result-dashboard__scenario-grid">
-        {entries.map(([key, val], i) => {
-          const meta = RUN_LABELS[key] ?? { label: key, desc: '', image: null, tone: 'normal' };
-          const summaryText = val.canReachPityWithRun
-            ? '천장 도달 가능해요!'
-            : val.gainedMedals > 0
-            ? `천장까지 ${Math.max(0, (requiredMysticMedals ?? 0) - (val.totalMedals ?? 0)).toLocaleString()}개 부족해요…`
-            : '추가 공력이 거의 없어요…';
-          return (
-            <div
-              key={key}
-              className={`mc-result-dashboard__scenario-card mc-scenario--${meta.tone}`}
-              style={{ animationDelay: `${i * 0.1}s` }}
-            >
-              {/* 이미지 영역 */}
-              <div className="mc-scenario__img-wrap">
-                {meta.image && (
-                  <img
-                    src={meta.image}
-                    alt={`${meta.label} 캬릭터`}
-                    className="mc-scenario__img"
-                  />
-                )}
-              </div>
-
-              {/* 시나리오 이름 + 배지 */}
-              <div className="mc-result-dashboard__scenario-header">
-                <span className="mc-run-label">{meta.label}</span>
-                <span className={`mc-run-badge ${val.canReachPityWithRun ? 'mc-badge-ok' : 'mc-badge-fail'}`}>
-                  {val.canReachPityWithRun ? '천장 가능' : '천장 불가'}
-                </span>
-              </div>
-              <p className="mc-run-desc" style={{ margin: '2px 0 8px' }}>{meta.desc}</p>
-
-              {/* 수치 */}
-              <div className="mc-result-dashboard__scenario-stats">
-                <div className="mc-result-dashboard__scenario-stat">
-                  <span className="mc-result-dashboard__scenario-stat-label">추가 갈피</span>
-                  <span className="mc-run-gained">+{(val.gainedMedals ?? 0).toLocaleString()}</span>
-                </div>
-                <div className="mc-result-dashboard__scenario-stat">
-                  <span className="mc-result-dashboard__scenario-stat-label">추가 뽑기</span>
-                  <span className="mc-run-pulls">+{(val.extraPulls ?? 0).toLocaleString()}</span>
-                </div>
-              </div>
-
-              {/* 요약 문구 */}
-              <p className="mc-scenario__summary">{summaryText}</p>
-            </div>
-          );
-        })}
+    <div className="mc-card mc-emergency-card">
+      <div className="mc-emergency-summary-row">
+        <div>
+          <p className="mc-emergency-title">비상런 분석</p>
+          <p className={`mc-emergency-conclusion mc-emergency-conclusion--${summary.status}`}>
+            {summary.text}
+          </p>
+        </div>
+        <button
+          type="button"
+          className="mc-emergency-toggle"
+          onClick={() => setOpen(v => !v)}
+          aria-expanded={open}
+        >
+          {open ? '접기' : '자세히'}
+        </button>
       </div>
-      <p className="mc-result-dashboard__scenario-conclusion">
-        {anyCanReach ? '✔' : '✘'} {conclusion}
-      </p>
+
+      {open && (
+        <div className="mc-emergency-detail">
+          <p className="mc-run-meta">
+            하늘석 {(skystones ?? 0).toLocaleString()}개 &middot; 리롤 {(rerolls ?? 0).toLocaleString()}회 &middot; 기댓값 {expectedHits ?? 0}회
+            <br />
+            <span className="mc-run-prob-hint">확률 0.1700646% / 리롤 (비밀상점 Lv.13)</span>
+          </p>
+          <div className="mc-result-dashboard__scenario-grid">
+            {entries.map(([key, val], i) => {
+              const meta = RUN_LABELS[key] ?? { label: key, desc: '', image: null, tone: 'normal' };
+              const summaryText = val.canReachPityWithRun
+                ? '천장 도달 가능해요!'
+                : val.gainedMedals > 0
+                ? `천장까지 ${Math.max(0, (requiredMysticMedals ?? 0) - (val.totalMedals ?? 0)).toLocaleString()}개 부족해요…`
+                : '추가 공력이 거의 없어요…';
+              return (
+                <div
+                  key={key}
+                  className={`mc-result-dashboard__scenario-card mc-scenario--${meta.tone}`}
+                  style={{ animationDelay: `${i * 0.1}s` }}
+                >
+                  <div className="mc-scenario__img-wrap">
+                    {meta.image && (
+                      <img
+                        src={meta.image}
+                        alt={`${meta.label} 캐릭터`}
+                        className="mc-scenario__img"
+                      />
+                    )}
+                  </div>
+                  <div className="mc-result-dashboard__scenario-header">
+                    <span className="mc-run-label">{meta.label}</span>
+                    <span className={`mc-run-badge ${val.canReachPityWithRun ? 'mc-badge-ok' : 'mc-badge-fail'}`}>
+                      {val.canReachPityWithRun ? '천장 가능' : '천장 불가'}
+                    </span>
+                  </div>
+                  <p className="mc-run-desc" style={{ margin: '2px 0 8px' }}>{meta.desc}</p>
+                  <div className="mc-result-dashboard__scenario-stats">
+                    <div className="mc-result-dashboard__scenario-stat">
+                      <span className="mc-result-dashboard__scenario-stat-label">추가 갈피</span>
+                      <span className="mc-run-gained">+{(val.gainedMedals ?? 0).toLocaleString()}</span>
+                    </div>
+                    <div className="mc-result-dashboard__scenario-stat">
+                      <span className="mc-result-dashboard__scenario-stat-label">추가 뽑기</span>
+                      <span className="mc-run-pulls">+{(val.extraPulls ?? 0).toLocaleString()}</span>
+                    </div>
+                  </div>
+                  <p className="mc-scenario__summary">{summaryText}</p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -344,8 +321,8 @@ function PackageRecommendationList({ pkgs }) {
 function ResultActions({ onReset }) {
   return (
     <div className="mc-result-dashboard__actions">
-      <button type="button" className="mc-result-dashboard__btn-capture" onClick={handleCaptureResult}>
-        결과 캡쳐
+      <button type="button" className="mc-result-dashboard__btn-capture" disabled title="준비 중인 기능입니다">
+        결과 캡쳐 (준비 중)
       </button>
       <button type="button" className="mc-btn-calc mc-result-dashboard__btn-reset" onClick={onReset}>
         다시 계산하기
@@ -375,38 +352,26 @@ export default function ResultStep({ result, comment, onReset, showPackage }) {
 
   return (
     <div className="mc-result-dashboard">
-      {/* 1+2. 마스코트 + 판정 + 천장 준비도 통합 카드 */}
-      <TopSummaryCard
+      {/* Hero: 마스코트 + 판정 + 부족갈피 + 준비도 */}
+      <ResultHeroCard
         comment={comment}
         canReachPity={canReachPity}
         shortfallMedals={shortfallMedals}
         requiredMysticMedals={requiredMysticMedals}
-        possiblePulls={possiblePulls}
-        probWithCurrentMedals={probWithCurrentMedals}
         emergencyRun={emergencyRun}
         pity={pity}
         medals={medals}
       />
 
-      {/* 3. 핵심 지표 카드 Grid */}
-      <StatCardGrid
+      {/* Quick Stats: 가능 뽑기 / 5성 확률 / 필요 갈피 */}
+      <QuickStatsRow
         requiredMysticMedals={requiredMysticMedals}
         possiblePulls={possiblePulls}
-        shortfallMedals={shortfallMedals}
         probWithCurrentMedals={probWithCurrentMedals}
-        pity={pity}
       />
 
-      {/* 4. 확률 비교 */}
-      <ProbabilityCompare
-        probBeforePity={probBeforePity}
-        probWithCurrentMedals={probWithCurrentMedals}
-        pity={pity}
-        possiblePulls={possiblePulls}
-      />
-
-      {/* 5. 비상런 시나리오 */}
-      <EmergencyScenarioList
+      {/* 비상런 한 줄 결론 + 접기/펼치기 */}
+      <EmergencySummary
         emergencyRun={emergencyRun}
         skystones={skystones}
         rerolls={rerolls}
@@ -414,10 +379,18 @@ export default function ResultStep({ result, comment, onReset, showPackage }) {
         requiredMysticMedals={requiredMysticMedals}
       />
 
-      {/* 6. 패키지 추천 */}
+      {/* 확률 상세 (보조) */}
+      <ProbabilityDetail
+        probBeforePity={probBeforePity}
+        probWithCurrentMedals={probWithCurrentMedals}
+        pity={pity}
+        possiblePulls={possiblePulls}
+      />
+
+      {/* 패키지 추천 */}
       {showPackage && <PackageRecommendationList pkgs={packageRecommendations} />}
 
-      {/* 7. 액션 버튼 */}
+      {/* 액션 버튼 */}
       <ResultActions onReset={onReset} />
     </div>
   );
