@@ -329,7 +329,7 @@ function ResultActions({ onReset, onCapture, isCapturing }) {
         onClick={onCapture}
         disabled={isCapturing}
       >
-        {isCapturing ? '콡쳐 중...' : '결과 콡쳐'}
+        {isCapturing ? '캡쳐 중...' : '결과 캡쳐'}
       </button>
       <button type="button" className="mc-btn-calc mc-result-dashboard__btn-reset" onClick={onReset}>
         다시 계산하기
