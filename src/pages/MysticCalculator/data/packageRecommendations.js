@@ -3,6 +3,9 @@
  * 에픽세븐 상점 화면 기준으로 수동 정리한 참고 데이터입니다.
  */
 
+/** 데이터 마지막 업데이트 기준일 (YYYY-MM-DD) */
+export const DATA_UPDATED_AT = '2026-05-22';
+
 const packageRecommendations = [
   {
     id: 'pc_summon_value_package',

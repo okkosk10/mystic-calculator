@@ -17,6 +17,10 @@ function parseEndDate(salePeriod) {
 }
 
 function isExpired(pkg) {
+  // endsAt(ISO 문자열)이 있으면 우선 사용
+  if (pkg.endsAt) {
+    return new Date(pkg.endsAt) < new Date();
+  }
   const endDate = parseEndDate(pkg.salePeriod);
   if (!endDate) return false;
   return endDate < new Date();

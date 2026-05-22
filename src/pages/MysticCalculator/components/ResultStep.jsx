@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import { toPng } from 'html-to-image';
-import packageRecommendations from '../data/packageRecommendations';
+import packageRecommendations, { DATA_UPDATED_AT } from '../data/packageRecommendations';
 import { formatExpectedMedals, getPackageRecommendations } from '../utils/packageRecommendation';
 import { buildShareUrl } from '../utils/shareUrl';
 import '../MysticCalculator.css';
@@ -362,6 +362,47 @@ function PackageRecommendationList({ pkgs, result }) {
         표시된 추천 후보 합산&nbsp;
         <strong>{recommendations.reduce((s, p) => s + (p.totalPriceValue || 0), 0).toLocaleString()}원</strong>
       </div>
+      <p className="mc-package-data-date">데이터 기준: {DATA_UPDATED_AT.replace(/-/g, '.')}</p>
+    </div>
+  );
+}
+
+/* ── 계산 기준 카드 ── */
+const CALC_BASIS_ROWS = [
+  { label: '신비 1뽑 비용', value: '신비 메달 50개' },
+  { label: '신비 5성 확률', value: '0.625% / 뽑기' },
+  { label: '리롤 비용', value: '하늘석 3개 / 1회' },
+  { label: '신비 확률 (슬롯)', value: '0.1700646% / 슬롯' },
+  { label: '신비 확률 (리롤)', value: '약 1.016% / 리롤 (6슬롯)' },
+  { label: '초반 30뽑 할인', value: '35개 / 회 · 최대 30회' },
+];
+
+function CalcBasisCard() {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="mc-card mc-calc-basis-card">
+      <div className="mc-calc-basis-header">
+        <h2 className="mc-card-title mc-calc-basis-title">계산 기준</h2>
+        <button
+          type="button"
+          className="mc-calc-basis-toggle"
+          onClick={() => setOpen((v) => !v)}
+          aria-expanded={open}
+          data-capture-exclude="true"
+        >
+          {open ? '접기' : '펼치기'}
+        </button>
+      </div>
+      {open && (
+        <div className="mc-calc-basis-content" data-capture-exclude="true">
+          {CALC_BASIS_ROWS.map((row) => (
+            <div key={row.label} className="mc-calc-basis-row">
+              <span className="mc-calc-basis-label">{row.label}</span>
+              <span className="mc-calc-basis-value">{row.value}</span>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -516,6 +557,9 @@ export default function ResultStep({ result, comment, onReset, showPackage, inpu
 
       {/* 패키지 추천 */}
       {showPackage && <PackageRecommendationList pkgs={packageRecommendations} result={result} />}
+
+      {/* 계산 기준 */}
+      <CalcBasisCard />
 
       {/* 액션 버튼 */}
       <ResultActions onReset={onReset} onCapture={handleCapture} isCapturing={isCapturing} inputValues={inputValues} />
