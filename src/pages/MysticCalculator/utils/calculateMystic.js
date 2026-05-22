@@ -7,9 +7,12 @@
 export const MEDALS_PER_PULL = 50; // 1회 뽑기 = 신비 메달 50개
 
 // ── 비밀상점 비상런 기준 (비밀상점 Lv.13 공식 확률표) ──
-export const SKYSTONES_PER_REROLL = 3;         // 리롤 1회 비용 (하늘석)
-export const MEDAL_APPEAR_PROB = 0.001700646;  // 0.1700646% per 리롤
-export const MEDALS_PER_HIT = 50;             // 등장 시 구매 가능 신비 메달 수량 (= MEDALS_PER_PULL)
+export const SKYSTONES_PER_REROLL = 3;              // 리롤 1회 비용 (하늘석)
+export const SECRET_SHOP_SLOT_COUNT = 6;            // 리롤 1회에 노출되는 상품 슬롯 수
+export const MEDAL_APPEAR_PROB_PER_SLOT = 0.001700646; // 0.1700646% per 슬롯
+export const MEDAL_APPEAR_PROB =
+  1 - Math.pow(1 - MEDAL_APPEAR_PROB_PER_SLOT, SECRET_SHOP_SLOT_COUNT); // 약 1.016% per 리롤
+export const MEDALS_PER_HIT = 50;                  // 등장 시 구매 가능 신비 메달 수량 (= MEDALS_PER_PULL)
 
 // ── 초반 30뽑 30% 할인 관련 상수 ──
 export const EARLY_DISCOUNT_MAX_PULLS = 30;   // 할인 적용 최대 횟수

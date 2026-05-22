@@ -245,7 +245,7 @@ function EmergencySummary({ emergencyRun, skystones, rerolls, expectedHits, requ
           <p className="mc-run-meta">
             하늘석 {(skystones ?? 0).toLocaleString()}개 &middot; 리롤 {(rerolls ?? 0).toLocaleString()}회 &middot; 기댓값 {expectedHits ?? 0}회
             <br />
-            <span className="mc-run-prob-hint">확률 0.1700646% / 리롤 (비밀상점 Lv.13)</span>
+            <span className="mc-run-prob-hint">확률 약 1.016% / 리롤 (0.1700646% × 6슬롯, 비밀상점 Lv.13)</span>
           </p>
           <div className="mc-result-dashboard__scenario-grid">
             {entries.map(([key, val], i) => {
