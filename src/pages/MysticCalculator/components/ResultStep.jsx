@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import { toPng } from 'html-to-image';
 import packageRecommendations from '../data/packageRecommendations';
 import { formatExpectedMedals, getPackageRecommendations } from '../utils/packageRecommendation';
+import { buildShareUrl } from '../utils/shareUrl';
 import '../MysticCalculator.css';
 
 /* ── 상수 ── */
@@ -366,7 +367,28 @@ function PackageRecommendationList({ pkgs, result }) {
 }
 
 /* ── 7. 액션 버튼 ── */
-function ResultActions({ onReset, onCapture, isCapturing }) {
+function ResultActions({ onReset, onCapture, isCapturing, inputValues }) {
+  const [copyState, setCopyState] = useState('idle'); // 'idle' | 'copied'
+
+  async function handleCopyLink() {
+    const url = buildShareUrl(inputValues);
+    try {
+      await navigator.clipboard.writeText(url);
+    } catch {
+      // clipboard API 미지원 환경 fallback
+      const ta = document.createElement('textarea');
+      ta.value = url;
+      ta.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+    }
+    setCopyState('copied');
+    setTimeout(() => setCopyState('idle'), 2000);
+  }
+
   return (
     <div className="mc-result-dashboard__actions" data-capture-exclude="true">
       <button
@@ -377,6 +399,13 @@ function ResultActions({ onReset, onCapture, isCapturing }) {
       >
         {isCapturing ? '캡쳐 중...' : '결과 캡쳐'}
       </button>
+      <button
+        type="button"
+        className="mc-result-dashboard__btn-share"
+        onClick={handleCopyLink}
+      >
+        {copyState === 'copied' ? '복사 완료 ✓' : '공유 링크 복사'}
+      </button>
       <button type="button" className="mc-btn-calc mc-result-dashboard__btn-reset" onClick={onReset}>
         다시 계산하기
       </button>
@@ -385,7 +414,7 @@ function ResultActions({ onReset, onCapture, isCapturing }) {
 }
 
 /* ── 메인 컴포넌트 ── */
-export default function ResultStep({ result, comment, onReset, showPackage }) {
+export default function ResultStep({ result, comment, onReset, showPackage, inputValues }) {
   const [isCapturing, setIsCapturing] = useState(false);
   const captureRef = useRef(null);
 
@@ -489,7 +518,7 @@ export default function ResultStep({ result, comment, onReset, showPackage }) {
       {showPackage && <PackageRecommendationList pkgs={packageRecommendations} result={result} />}
 
       {/* 액션 버튼 */}
-      <ResultActions onReset={onReset} onCapture={handleCapture} isCapturing={isCapturing} />
+      <ResultActions onReset={onReset} onCapture={handleCapture} isCapturing={isCapturing} inputValues={inputValues} />
     </div>
   );
 }

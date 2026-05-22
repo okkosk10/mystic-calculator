@@ -4,6 +4,7 @@ import LoadingStep from './components/LoadingStep';
 import ResultStep from './components/ResultStep';
 import { calculateMystic } from './utils/calculateMystic';
 import { getMascotComment, shouldShowPackage } from './utils/recommendationRules';
+import { parseShareParams } from './utils/shareUrl';
 import './MysticCalculator.css';
 
 const STORAGE_KEY = 'mystic-calc-input-v1';
@@ -31,6 +32,33 @@ function loadSavedInput() {
   }
 }
 
+/**
+ * URL 쿼리 > localStorage > DEFAULT_VALUES 순서로 초기값을 결정한다.
+ * URL 쿼리로 진입하면 자동 계산 후 결과 화면으로 바로 이동한다.
+ */
+function buildInitialState() {
+  const fromUrl = parseShareParams(window.location.search);
+  if (fromUrl) {
+    history.replaceState(null, '', window.location.pathname);
+    const parsed = parseInput(fromUrl);
+    const r = calculateMystic(parsed);
+    return {
+      values: fromUrl,
+      step: 'loading',
+      result: r,
+      comment: getMascotComment(r),
+      showPackage: shouldShowPackage(r),
+    };
+  }
+  return {
+    values: loadSavedInput(),
+    step: 'input',
+    result: null,
+    comment: '',
+    showPackage: false,
+  };
+}
+
 function parseInput(values) {
   return {
     currentMysticMedals: values.currentMysticMedals === '' ? 0 : Number(values.currentMysticMedals),
@@ -41,11 +69,13 @@ function parseInput(values) {
 }
 
 export default function MysticCalculator() {
-  const [step, setStep] = useState('input');
-  const [inputValues, setInputValues] = useState(() => loadSavedInput());
-  const [result, setResult] = useState(null);
-  const [comment, setComment] = useState('');
-  const [showPackage, setShowPackage] = useState(false);
+  const [init] = useState(() => buildInitialState());
+
+  const [step, setStep] = useState(init.step);
+  const [inputValues, setInputValues] = useState(init.values);
+  const [result, setResult] = useState(init.result);
+  const [comment, setComment] = useState(init.comment);
+  const [showPackage, setShowPackage] = useState(init.showPackage);
 
   // inputValues 변경 시 localStorage 저장
   useEffect(() => {
@@ -104,6 +134,7 @@ export default function MysticCalculator() {
             comment={comment}
             showPackage={showPackage}
             onReset={handleReset}
+            inputValues={inputValues}
           />
         )}
       </main>
