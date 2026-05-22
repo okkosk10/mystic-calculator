@@ -6,12 +6,30 @@ import { calculateMystic } from './utils/calculateMystic';
 import { getMascotComment, shouldShowPackage } from './utils/recommendationRules';
 import './MysticCalculator.css';
 
+const STORAGE_KEY = 'mystic-calc-input-v1';
+
 const DEFAULT_VALUES = {
   currentMysticMedals: '500',
   currentSkystones: '3000',
   remainingPityCount: '200',
   useEarlyDiscount: false,
 };
+
+function loadSavedInput() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return DEFAULT_VALUES;
+    const saved = JSON.parse(raw);
+    return {
+      currentMysticMedals: String(Math.max(0, Math.floor(Number(saved.currentMysticMedals) || 0))),
+      currentSkystones: String(Math.max(0, Math.floor(Number(saved.currentSkystones) || 0))),
+      remainingPityCount: String(Math.min(200, Math.max(0, Math.floor(Number(saved.remainingPityCount) || 0)))),
+      useEarlyDiscount: !!saved.useEarlyDiscount,
+    };
+  } catch {
+    return DEFAULT_VALUES;
+  }
+}
 
 function parseInput(values) {
   return {
@@ -24,10 +42,19 @@ function parseInput(values) {
 
 export default function MysticCalculator() {
   const [step, setStep] = useState('input');
-  const [inputValues, setInputValues] = useState(DEFAULT_VALUES);
+  const [inputValues, setInputValues] = useState(() => loadSavedInput());
   const [result, setResult] = useState(null);
   const [comment, setComment] = useState('');
   const [showPackage, setShowPackage] = useState(false);
+
+  // inputValues 변경 시 localStorage 저장
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(inputValues));
+    } catch {
+      // storage 사용 불가 환경 무시
+    }
+  }, [inputValues]);
 
   function handleSubmit() {
     const parsed = parseInput(inputValues);
@@ -44,8 +71,14 @@ export default function MysticCalculator() {
     return () => clearTimeout(timer);
   }, [step]);
 
+  // 다시 계산하기: 입력값 유지, step만 초기화
   function handleReset() {
     setStep('input');
+  }
+
+  // 입력 초기화: DEFAULT_VALUES로 되돌리기
+  function handleInputReset() {
+    setInputValues(DEFAULT_VALUES);
   }
 
   return (
@@ -61,6 +94,7 @@ export default function MysticCalculator() {
             values={inputValues}
             onChange={setInputValues}
             onSubmit={handleSubmit}
+            onReset={handleInputReset}
           />
         )}
         {step === 'loading' && <LoadingStep />}

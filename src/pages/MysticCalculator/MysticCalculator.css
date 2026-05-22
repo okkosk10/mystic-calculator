@@ -107,7 +107,7 @@
 /* 버튼 - 이미지 아래 풀 너비 */
 .mc-btn-main {
   width: 100%;
-  margin-top: 8px;
+  margin-top: 4px;
 }
 
 /* ---------- step: loading ---------- */
@@ -417,7 +417,7 @@
 /* ---------- 헤더 ---------- */
 .mc-header {
   text-align: center;
-  padding: 32px 0 16px;
+  padding: 20px 0 12px;
 }
 
 .mc-title {
@@ -1933,5 +1933,73 @@
 
   .mc-wrapper {
     padding-bottom: 8px;
+  }
+}
+
+/* ---------- 프리셋 / 초기화 버튼 (InputStep) ---------- */
+.mc-preset-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  align-items: center;
+  width: 100%;
+  margin-top: 2px;
+}
+
+.mc-preset-btn {
+  padding: 5px 13px;
+  background: rgba(168, 85, 247, 0.1);
+  border: 1px solid rgba(168, 85, 247, 0.35);
+  border-radius: 999px;
+  color: var(--mc-primary-light);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.18s, border-color 0.18s, transform 0.12s;
+  white-space: nowrap;
+}
+
+.mc-preset-btn:hover {
+  background: rgba(168, 85, 247, 0.22);
+  border-color: rgba(168, 85, 247, 0.65);
+  transform: scale(1.03);
+}
+
+.mc-preset-btn:active {
+  transform: scale(0.97);
+}
+
+.mc-reset-btn {
+  margin-left: auto;
+  padding: 5px 13px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  color: var(--mc-text-muted);
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.18s, color 0.18s;
+  white-space: nowrap;
+}
+
+.mc-reset-btn:hover {
+  border-color: var(--mc-danger);
+  color: var(--mc-danger);
+}
+
+.mc-reset-btn:active {
+  transform: scale(0.97);
+}
+
+@media (max-width: 360px) {
+  .mc-preset-row {
+    gap: 5px;
+  }
+
+  .mc-preset-btn,
+  .mc-reset-btn {
+    font-size: 0.75rem;
+    padding: 4px 10px;
   }
 }

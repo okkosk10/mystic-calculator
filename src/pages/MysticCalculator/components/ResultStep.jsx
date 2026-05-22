@@ -358,7 +358,7 @@ function PackageRecommendationList({ pkgs, result }) {
         })}
       </ul>
       <div className="mc-package-total">
-        추천 패키지 전부 구매 시&nbsp;
+        표시된 추천 후보 합산&nbsp;
         <strong>{recommendations.reduce((s, p) => s + (p.totalPriceValue || 0), 0).toLocaleString()}원</strong>
       </div>
     </div>

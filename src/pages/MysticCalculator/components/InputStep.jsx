@@ -6,7 +6,13 @@ const FIELDS = [
   { name: 'currentSkystones',    label: '보유 하늘석',         placeholder: '예) 3000', max: undefined },
 ];
 
-export default function InputStep({ values, onChange, onSubmit }) {
+const PRESETS = [
+  { label: '200 남음', remainingPityCount: '200' },
+  { label: '100 남음', remainingPityCount: '100' },
+  { label: '30 남음',  remainingPityCount: '30' },
+];
+
+export default function InputStep({ values, onChange, onSubmit, onReset }) {
   function handleChange(e) {
     const { name, value } = e.target;
     if (value === '') {
@@ -20,6 +26,10 @@ export default function InputStep({ values, onChange, onSubmit }) {
 
   function handleDiscountToggle(e) {
     onChange({ ...values, useEarlyDiscount: e.target.checked });
+  }
+
+  function handlePreset(preset) {
+    onChange({ ...values, remainingPityCount: preset.remainingPityCount });
   }
 
   return (
@@ -73,7 +83,24 @@ export default function InputStep({ values, onChange, onSubmit }) {
         />
       </div>
 
-      {/* 버튼 */}
+      {/* 프리셋 + 초기화 */}
+      <div className="mc-preset-row">
+        {PRESETS.map((p) => (
+          <button
+            key={p.label}
+            type="button"
+            className="mc-preset-btn"
+            onClick={() => handlePreset(p)}
+          >
+            {p.label}
+          </button>
+        ))}
+        <button type="button" className="mc-reset-btn" onClick={onReset}>
+          초기화
+        </button>
+      </div>
+
+      {/* 계산 버튼 */}
       <button type="button" className="mc-btn-calc mc-btn-main" onClick={onSubmit}>
         땃지 브레인 발동
       </button>
