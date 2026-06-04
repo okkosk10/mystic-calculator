@@ -303,6 +303,14 @@ function PackageRecommendationList({ pkgs, result }) {
 
   if (recommendations.length === 0) return null;
 
+  const knownTotalPrice = recommendations.reduce((sum, pkg) => (
+    Number.isFinite(pkg.totalPriceValue) ? sum + pkg.totalPriceValue : sum
+  ), 0);
+  const hasUnknownPrice = recommendations.some((pkg) => !Number.isFinite(pkg.totalPriceValue));
+  const totalPriceText = knownTotalPrice > 0
+    ? `${knownTotalPrice.toLocaleString()}원${hasUnknownPrice ? ' + 가격 확인 필요' : ''}`
+    : '가격 확인 필요';
+
   return (
     <div className="mc-card mc-package-card">
       <h2 className="mc-card-title">패키지 추천</h2>
@@ -335,6 +343,7 @@ function PackageRecommendationList({ pkgs, result }) {
                   </span>
                 </div>
                 <span className="mc-package-desc">{pkg.reason}</span>
+                {pkg.description && <span className="mc-package-desc">{pkg.description}</span>}
                 <div className="mc-package-value-grid">
                   <span>기대 신비 {expectedMysticText}개</span>
                   <span>예상 뽑기 {pkg.expectedPulls.toFixed(1)}회</span>
@@ -360,7 +369,7 @@ function PackageRecommendationList({ pkgs, result }) {
       </ul>
       <div className="mc-package-total">
         표시된 추천 후보 합산&nbsp;
-        <strong>{recommendations.reduce((s, p) => s + (p.totalPriceValue || 0), 0).toLocaleString()}원</strong>
+        <strong>{totalPriceText}</strong>
       </div>
       <p className="mc-package-data-date">데이터 기준: {DATA_UPDATED_AT.replace(/-/g, '.')}</p>
     </div>

@@ -98,21 +98,24 @@ function evaluatePackage(pkg, result) {
 
   if (effectiveMysticMedals <= 0) return null;
 
-  const priceValue = Math.max(0, Number(pkg.priceValue) || 0) * copies;
+  const unitPriceValue = pkg.priceValue == null ? null : Number(pkg.priceValue);
+  const hasKnownPrice = Number.isFinite(unitPriceValue) && unitPriceValue > 0;
+  const priceValue = hasKnownPrice ? unitPriceValue * copies : null;
+  const priceLabel = pkg.priceLabel ?? '가격 확인 필요';
   const shortfall = Math.max(0, Number(result.shortfallMedals) || 0);
   const missingAfterPackage = Math.max(0, shortfall - effectiveMysticMedals);
   const coverRatio = shortfall > 0 ? Math.min(1, effectiveMysticMedals / shortfall) : 0;
   const canReachPity = shortfall > 0 && missingAfterPackage <= 0;
   const expectedPulls = effectiveMysticMedals / MEDALS_PER_PULL;
-  const pricePerPull = expectedPulls > 0 && priceValue > 0 ? priceValue / expectedPulls : Infinity;
-  const pricePerMedal = effectiveMysticMedals > 0 && priceValue > 0 ? priceValue / effectiveMysticMedals : Infinity;
+  const pricePerPull = expectedPulls > 0 && hasKnownPrice ? priceValue / expectedPulls : Infinity;
+  const pricePerMedal = effectiveMysticMedals > 0 && hasKnownPrice ? priceValue / effectiveMysticMedals : Infinity;
   const directRatio = effectiveMysticMedals > 0 ? directMysticMedals / effectiveMysticMedals : 0;
 
   return {
     ...pkg,
     copies,
     totalPriceValue: priceValue,
-    totalPriceLabel: copies > 1 ? `${pkg.priceLabel} × ${copies}` : pkg.priceLabel,
+    totalPriceLabel: copies > 1 ? `${priceLabel} × ${copies}` : priceLabel,
     directMysticMedals,
     skystones,
     expectedMysticMedalsFromSkystones,
